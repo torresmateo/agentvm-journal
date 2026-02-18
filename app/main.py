@@ -32,10 +32,17 @@ async def index():
 <body>
   <h1>Journal App</h1>
   <p>Served by agent: <strong>{AGENT_ID}</strong></p>
+  <p><a href="/stats">View stats</a></p>
   <h2>Entries</h2>
   <ul>{entry_html}</ul>
 </body>
 </html>"""
+
+
+@app.get("/stats")
+async def stats():
+    most_recent = max((e["created"] for e in entries), default=None)
+    return {"total_entries": len(entries), "most_recent_entry": most_recent}
 
 
 @app.get("/health")
