@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: journal
+      POSTGRES_USER: journal
+      POSTGRES_PASSWORD: journal
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U journal"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: ./app
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      DATABASE_URL: postgresql://journal:journal@db:5432/journal
+      AGENT_ID: "${AGENT_ID:-unknown}"
+      PORT: "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
